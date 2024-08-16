@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  eureka-server:
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices-network
+
+  catalogo-service:
+    build:
+      context: ./catalogo-service
+      dockerfile: Dockerfile
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_DATASOURCE_URL=jdbc:h2:file:/data/catalogo;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    depends_on:
+      - eureka-server
+    ports:
+      - "8080:8080"
+    volumes:
+      - catalogo-db:/data
+    networks:
+      - microservices-network
+
+volumes:
+  catalogo-db:
+
+networks:
+  microservices-network:
+    driver: bridge
