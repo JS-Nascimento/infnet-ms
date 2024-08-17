@@ -29,4 +29,9 @@ public class LivroController {
     public Livro getLivroById(@PathVariable Long id) {
         return livroService.getLivroById(id);
     }
+
+    @PutMapping("/{id}")
+    public Livro updateLivro(@PathVariable Long id, @RequestBody Livro livro) {
+        return livroService.updateLivro(id, livro);
+    }
 }

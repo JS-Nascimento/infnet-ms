@@ -11,5 +11,7 @@ public interface LivroService {
     Livro createLivro(Livro livro);
 
     Livro getLivroById(Long id);
+
+    Livro updateLivro(Long id, Livro livro);
 }
 

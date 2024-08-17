@@ -29,4 +29,20 @@ public class LivroServiceImpl implements LivroService {
         return livroRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
     }
+
+    @Override
+    public Livro updateLivro(Long id, Livro livro) {
+
+        livroRepository.findById(id)
+                .map(l -> {
+                    l.setTitulo(livro.getTitulo());
+                    l.setAutor(livro.getAutor());
+                    l.setIsbn(livro.getIsbn());
+                    l.setEmprestado(livro.getEmprestado());
+                    return livroRepository.save(l);
+                })
+                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+
+        return null;
+    }
 }
