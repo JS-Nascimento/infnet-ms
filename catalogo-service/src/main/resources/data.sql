@@ -1,0 +1,10 @@
+INSERT INTO LIVRO (ID, TITULO, AUTOR, ISBN, EMPRESTADO) VALUES (1, 'Clean Code', 'Robert C. Martin', '978-0132350884', false);
+INSERT INTO LIVRO (ID, TITULO, AUTOR, ISBN, EMPRESTADO) VALUES (2, 'The Pragmatic Programmer', 'Andrew Hunt', '978-0201616224', false);
+INSERT INTO LIVRO (ID, TITULO, AUTOR, ISBN, EMPRESTADO) VALUES (3, 'Design Patterns', 'Erich Gamma', '978-0201633610', false);
+INSERT INTO LIVRO (ID, TITULO, AUTOR, ISBN, EMPRESTADO) VALUES (4, 'Refactoring', 'Martin Fowler', '978-0201485677', false);
+INSERT INTO LIVRO (ID, TITULO, AUTOR, ISBN, EMPRESTADO) VALUES (5, 'Effective Java', 'Joshua Bloch', '978-0134685991', false);
+INSERT INTO LIVRO (ID, TITULO, AUTOR, ISBN, EMPRESTADO) VALUES (6, 'Head First Design Patterns', 'Eric Freeman', '978-0596007126', false);
+INSERT INTO LIVRO (ID, TITULO, AUTOR, ISBN, EMPRESTADO) VALUES (7, 'Java Concurrency in Practice', 'Brian Goetz', '978-0321349606', false);
+INSERT INTO LIVRO (ID, TITULO, AUTOR, ISBN, EMPRESTADO) VALUES (8, 'Spring in Action', 'Craig Walls', '978-1617294945', false);
+INSERT INTO LIVRO (ID, TITULO, AUTOR, ISBN, EMPRESTADO) VALUES (9, 'Domain-Driven Design', 'Eric Evans', '978-0321125217', false);
+INSERT INTO LIVRO (ID, TITULO, AUTOR, ISBN, EMPRESTADO) VALUES (10, 'Microservices Patterns', 'Chris Richardson', '978-1617294549', true);
