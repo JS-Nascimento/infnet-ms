@@ -7,6 +7,12 @@ spring:
     username: sa
     password: password
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
   h2:
     console:
       enabled: true

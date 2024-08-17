@@ -7,6 +7,7 @@ import com.biblioteca.emprestimo_service.repository.CatalogoFeignClient;
 import com.biblioteca.emprestimo_service.repository.ClienteFeignClient;
 import com.biblioteca.emprestimo_service.repository.EmprestimoRepository;
 import com.biblioteca.emprestimo_service.service.EmprestimoService;
+import com.biblioteca.emprestimo_service.service.RabbitMQSenderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +22,7 @@ public class EmprestimoServiceImpl implements EmprestimoService {
         private final EmprestimoRepository emprestimoRepository;
         private final ClienteFeignClient clienteFeignClient;
         private final CatalogoFeignClient catalogoFeignClient;
-
-
+    private final RabbitMQSenderService rabbitMQSenderService;
 
     @Override
     public List<Emprestimo> getAllEmprestimos() {
@@ -38,9 +38,10 @@ public class EmprestimoServiceImpl implements EmprestimoService {
 
         if (livro != null && !livro.getEmprestado()) {
             livro.setEmprestado(true);
-            catalogoFeignClient.updateLivro(livroId, livro);
 
-            Emprestimo emprestimo = new Emprestimo(null, clienteId, livroId, LocalDate.now(), null, false);
+            rabbitMQSenderService.sendLivroAtualizacao(livro);
+
+            Emprestimo emprestimo = new Emprestimo(null, cliente.getId(), livroId, LocalDate.now(), null, false);
             return emprestimoRepository.save(emprestimo);
         } else {
             throw new RuntimeException("Livro não disponível para empréstimo");
@@ -62,7 +63,8 @@ public class EmprestimoServiceImpl implements EmprestimoService {
         LivroDto livro = catalogoFeignClient.getLivroById(emprestimo.getLivroId());
         if (livro != null) {
             livro.setEmprestado(false);
-            catalogoFeignClient.updateLivro(emprestimo.getLivroId(), livro);
+
+            rabbitMQSenderService.sendLivroAtualizacao(livro);
         }
 
         emprestimoRepository.save(emprestimo);
