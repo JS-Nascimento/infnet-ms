@@ -4,6 +4,7 @@ package com.biblioteca.cliente_service.controller;
 import com.biblioteca.cliente_service.model.Cliente;
 import com.biblioteca.cliente_service.service.ClienteService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class ClienteController {
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCliente(@PathVariable Long id) {
         clienteService.deleteCliente(id);
     }
