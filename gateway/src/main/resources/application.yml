@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway-service
+
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: catalogo-service
+            uri: lb://catalogo-service
+            predicates:
+              - Path=/catalogo/**
+            filters:
+              - RewritePath=/catalogo/(?<segment>.*), /$\{segment}
+
+          - id: emprestimo-service
+            uri: lb://emprestimo-service
+            predicates:
+              - Path=/emprestimo/**
+            filters:
+              - RewritePath=/emprestimo/(?<segment>.*), /$\{segment}
+
+          - id: cliente-service
+            uri: lb://cliente-service
+            predicates:
+              - Path=/cliente/**
+            filters:
+              - RewritePath=/cliente/(?<segment>.*), /$\{segment}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
