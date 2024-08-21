@@ -29,6 +29,12 @@ spring:
               - Path=/cliente/**
             filters:
               - RewritePath=/cliente/(?<segment>.*), /$\{segment}
+logging:
+  level:
+    root: INFO
+  logstash:
+    host: localhost
+    port: 12201
 
 eureka:
   client:

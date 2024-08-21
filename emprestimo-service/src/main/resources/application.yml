@@ -41,3 +41,9 @@ eureka:
     register-with-eureka: true
 
 
+logging:
+  level:
+    root: INFO
+  logstash:
+    host: localhost
+    port: 12201

@@ -1,6 +1,7 @@
 spring:
   application:
     name: catalogo-service
+
   datasource:
     url: jdbc:h2:mem:catalogo;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driverClassName: org.h2.Driver
@@ -39,3 +40,23 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
     fetch-registry: true
     register-with-eureka: true
+
+logging:
+  level:
+    root: INFO
+  logstash:
+    host: graylog
+    port: 12201
+
+opentracing:
+  jaeger:
+    enabled: true
+    udp-sender:
+      host: jaeger
+      port: 6831
+    http-sender:
+      url: http://localhost:14268/api/traces
+    log-spans: true
+    sampler:
+      type: const
+      param: 1

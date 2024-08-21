@@ -34,3 +34,10 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
     fetch-registry: true
     register-with-eureka: true
+
+logging:
+  level:
+    root: INFO
+  logstash:
+    host: localhost
+    port: 12201

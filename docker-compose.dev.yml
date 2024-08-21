@@ -13,6 +13,104 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
       - rabbitmq_log:/var/log/rabbitmq
 
+  mongodb:
+    image: mongo:4.4
+    container_name: mongodb
+    networks:
+      - graylog
+    volumes:
+      - mongo_data:/data/db
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_USERNAME=elastic
+      - ELASTIC_PASSWORD=yourpassword
+      - xpack.security.transport.ssl.enabled=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+    networks:
+      - graylog
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+
+  graylog:
+    image: graylog/graylog:4.3
+    container_name: graylog
+    environment:
+      - GRAYLOG_PASSWORD_SECRET=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9000/
+      - GRAYLOG_MONGODB_URI=mongodb://mongodb:27017/graylog
+      - GRAYLOG_ELASTICSEARCH_HOSTS=http://elastic:yourpassword@elasticsearch:9200
+    depends_on:
+      - mongodb
+      - elasticsearch
+    networks:
+      - graylog
+    ports:
+      - "9000:9000"
+      - "12201:12201/udp"
+      - "12201:12201/tcp"
+      - "1514:1514/tcp"
+    volumes:
+      - graylog_data:/usr/share/graylog/data
+
+
+  gelf-setup:
+    image: curlimages/curl:7.85.0
+    container_name: gelf-setup
+    depends_on:
+      - graylog
+    entrypoint: >
+      /bin/sh -c "
+      echo 'Esperando Graylog iniciar...' && 
+      until curl -s http://graylog:9000/api/system/inputs > /dev/null; do 
+        echo 'Graylog ainda não está pronto, aguardando...' && 
+        sleep 10; 
+      done && 
+      echo 'Graylog iniciado, criando input GELF TCP...' && 
+      curl -X POST 'http://admin:admin@graylog:9000/api/system/inputs' 
+      -H 'Content-Type: application/json' 
+      -H 'X-Requested-By: curl'
+      -d '{\"title\": \"GELF TCP\", \"type\": \"org.graylog2.inputs.gelf.tcp.GELFTCPInput\", \"configuration\": {\"bind_address\": \"0.0.0.0\", \"port\": 12201, \"recv_buffer_size\": 1048576, \"tcp_keepalive\": false, \"use_null_delimiter\": false, \"tls_cert_file\": \"\", \"tls_key_file\": \"\", \"tls_key_password\": \"\", \"tls_enable\": false, \"tls_client_auth\": \"disabled\", \"max_message_size\": 2097152}, \"global\": true, \"node\": null}'
+      "
+    networks:
+      - graylog
+  jaeger:
+    image: jaegertracing/all-in-one:1.41
+    container_name: jaeger
+    environment:
+      COLLECTOR_ZIPKIN_HTTP_PORT: 9411
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "14250:14250"
+      - "9411:9411"
+    networks:
+      - graylog
+
+networks:
+  graylog:
+    driver: bridge
+
 volumes:
   rabbitmq_data:
   rabbitmq_log:
+  graylog_data:
+    driver: local
+  mongo_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
