@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: Biblioteca MS-Infnet CI Pipeline
 
 on:
   push:
@@ -38,7 +38,6 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.catalogo-changed == 'true'
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -72,7 +71,6 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.eureka-changed == 'true'
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
