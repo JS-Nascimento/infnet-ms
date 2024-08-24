@@ -1,4 +1,4 @@
-name: Biblioteca MS-Infnet CI Pipeline
+name: CI Pipeline
 
 on:
   push:
@@ -12,8 +12,8 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      catalogo-changed: ${{ steps.catalogo.outputs.changed }}
-      eureka-changed: ${{ steps.eureka.outputs.changed }}
+      catalogo-changed: ${{ steps.catalogo.outputs.catalogo }}
+      eureka-changed: ${{ steps.eureka.outputs.eureka }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -22,7 +22,7 @@ jobs:
         id: catalogo
         uses: dorny/paths-filter@v2
         with:
-          filters:
+          filters: |
             catalogo:
               - 'catalogo-service/**'
 
@@ -30,7 +30,7 @@ jobs:
         id: eureka
         uses: dorny/paths-filter@v2
         with:
-          filters:
+          filters: |
             eureka:
               - 'eureka-server/**'
 
@@ -58,8 +58,7 @@ jobs:
 
       - name: Build and Test catalogo-service
         working-directory: catalogo-service
-        run: |
-          mvn clean install
+        run: mvn clean install
 
       - name: Upload catalogo-service artifact
         uses: actions/upload-artifact@v3
@@ -91,8 +90,7 @@ jobs:
 
       - name: Build and Test eureka-server
         working-directory: eureka-server
-        run: |
-          mvn clean install
+        run: mvn clean install
 
       - name: Upload eureka-server artifact
         uses: actions/upload-artifact@v3
