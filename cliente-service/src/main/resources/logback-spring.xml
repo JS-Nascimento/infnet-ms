@@ -21,13 +21,11 @@
             <staticField>_application:CLIENTE-SERVICE</staticField>
 
             <shortPatternLayout>
-                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [%c] [%C:%L] [%M] %msg %n
-                </pattern>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [CLIENTE-SERVICE] [%thread] %-5level %logger{36} - %msg%n</pattern>
             </shortPatternLayout>
 
             <fullPatternLayout>
-                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [%c] [%C:%L] [%M] %msg %n
-                </pattern>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [CLIENTE-SERVICE] [%thread] %-5level %logger{36} - %msg%n</pattern>
             </fullPatternLayout>
         </encoder>
     </appender>

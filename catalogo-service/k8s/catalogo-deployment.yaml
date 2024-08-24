@@ -19,7 +19,7 @@ spec:
           image: catalogo-service:latest
           imagePullPolicy: Never
           ports:
-            - containerPort: 8080
+            - containerPort: 8083
           resources:
             limits:
               cpu: "500m"
