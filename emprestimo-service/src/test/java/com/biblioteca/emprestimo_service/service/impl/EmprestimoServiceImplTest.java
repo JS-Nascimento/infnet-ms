@@ -6,10 +6,10 @@ import com.biblioteca.emprestimo_service.model.Emprestimo;
 import com.biblioteca.emprestimo_service.repository.CatalogoFeignClient;
 import com.biblioteca.emprestimo_service.repository.ClienteFeignClient;
 import com.biblioteca.emprestimo_service.repository.EmprestimoRepository;
+import com.biblioteca.emprestimo_service.service.RabbitMQSenderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -28,6 +28,9 @@ class EmprestimoServiceImplTest {
 
     @Mock
     private EmprestimoRepository emprestimoRepository;
+
+    @Mock
+    private RabbitMQSenderService rabbitMQSenderService;
 
     @Mock
     private ClienteFeignClient clienteFeignClient;
@@ -64,7 +67,6 @@ class EmprestimoServiceImplTest {
     @Test
     @DisplayName("Deve criar um novo empréstimo com sucesso")
     void shouldCreateEmprestimoSuccessfully() {
-
         Long clienteId = 1L;
         Long livroId = 1L;
         ClienteDto clienteDto = new ClienteDto(clienteId, "Cliente", "cliente@exemplo.com", "123456789", "11111111111");
@@ -75,21 +77,17 @@ class EmprestimoServiceImplTest {
         when(catalogoFeignClient.getLivroById(livroId)).thenReturn(livroDto);
         when(emprestimoRepository.save(any(Emprestimo.class))).thenReturn(emprestimo);
 
-
         Emprestimo result = emprestimoService.createEmprestimo(clienteId, livroId);
-
 
         assertThat(result).isNotNull();
         assertThat(result.getClienteId()).isEqualTo(clienteId);
         assertThat(result.getLivroId()).isEqualTo(livroId);
         assertThat(result.getDevolvido()).isFalse();
 
-        ArgumentCaptor<LivroDto> livroCaptor = ArgumentCaptor.forClass(LivroDto.class);
-        verify(catalogoFeignClient, times(1)).updateLivro(eq(livroId), livroCaptor.capture());
-        assertThat(livroCaptor.getValue().getEmprestado()).isTrue();
-
-        verify(emprestimoRepository, times(1)).save(any(Emprestimo.class));
+        verify(rabbitMQSenderService).sendLivroAtualizacao(livroDto);
+        verify(emprestimoRepository).save(any(Emprestimo.class));
     }
+
 
     @Test
     @DisplayName("Deve lançar exceção quando o livro não estiver disponível")
@@ -143,7 +141,6 @@ class EmprestimoServiceImplTest {
     @Test
     @DisplayName("Deve devolver um livro com sucesso")
     void shouldReturnLivroSuccessfully() {
-
         Long emprestimoId = 1L;
         Emprestimo emprestimo = new Emprestimo(emprestimoId, 1L, 1L, LocalDate.now(), null, false);
         LivroDto livroDto = new LivroDto(emprestimo.getLivroId(), "Livro", "Autor", "1234567890123", true);
@@ -154,14 +151,11 @@ class EmprestimoServiceImplTest {
 
         emprestimoService.devolverLivro(emprestimoId);
 
-
         assertThat(emprestimo.getDevolvido()).isTrue();
         assertThat(emprestimo.getDataDevolucao()).isEqualTo(LocalDate.now());
 
-        ArgumentCaptor<LivroDto> livroCaptor = ArgumentCaptor.forClass(LivroDto.class);
-        verify(catalogoFeignClient, times(1)).updateLivro(eq(emprestimo.getLivroId()), livroCaptor.capture());
-        assertThat(livroCaptor.getValue().getEmprestado()).isFalse();
-
-        verify(emprestimoRepository, times(1)).save(any(Emprestimo.class));
+        verify(rabbitMQSenderService).sendLivroAtualizacao(livroDto);
+        verify(emprestimoRepository).save(any(Emprestimo.class));
     }
+
 }
