@@ -36,6 +36,7 @@ logging:
     host: localhost
     port: 12201
 
+
 eureka:
   client:
     service-url:

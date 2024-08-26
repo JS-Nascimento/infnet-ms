@@ -47,3 +47,4 @@ logging:
   logstash:
     host: localhost
     port: 12201
+
