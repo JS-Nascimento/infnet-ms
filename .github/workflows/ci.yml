@@ -12,11 +12,30 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
+      emprestimo-changed: ${{ steps.emprestimo.outputs.emprestimo }}
+      cliente-changed: ${{ steps.cliente.outputs.cliente }}
       catalogo-changed: ${{ steps.catalogo.outputs.catalogo }}
+      gateway-changed: ${{ steps.gateway.outputs.gateway }}
       eureka-changed: ${{ steps.eureka.outputs.eureka }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Check if emprestimo-service changed
+        id: emprestimo
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            emprestimo:
+              - 'emprestimo-service/**'
+
+      - name: Check if cliente-service changed
+        id: cliente
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            cliente:
+              - 'cliente-service/**'
 
       - name: Check if catalogo-service changed
         id: catalogo
@@ -26,6 +45,14 @@ jobs:
             catalogo:
               - 'catalogo-service/**'
 
+      - name: Check if gateway changed
+        id: gateway
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            gateway:
+              - 'gateway/**'
+
       - name: Check if eureka-server changed
         id: eureka
         uses: dorny/paths-filter@v3
@@ -33,6 +60,70 @@ jobs:
           filters: |
             eureka:
               - 'eureka-server/**'
+
+  build-emprestimo-service:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.emprestimo-changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 22
+        uses: actions/setup-java@v4
+        with:
+          java-version: '22'
+          distribution: 'temurin'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build and Test emprestimo-service
+        working-directory: emprestimo-service
+        run: mvn clean install
+
+      - name: Upload emprestimo-service artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: emprestimo-service
+          path: emprestimo-service/target/*.jar
+
+  build-cliente-service:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.cliente-changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 22
+        uses: actions/setup-java@v4
+        with:
+          java-version: '22'
+          distribution: 'temurin'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build and Test cliente-service
+        working-directory: cliente-service
+        run: mvn clean install
+
+      - name: Upload cliente-service artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cliente-service
+          path: cliente-service/target/*.jar
 
   build-catalogo-service:
     needs: detect-changes
@@ -65,6 +156,38 @@ jobs:
         with:
           name: catalogo-service
           path: catalogo-service/target/*.jar
+
+  build-gateway:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.gateway-changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 22
+        uses: actions/setup-java@v4
+        with:
+          java-version: '22'
+          distribution: 'temurin'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build and Test gateway
+        working-directory: gateway
+        run: mvn clean install
+
+      - name: Upload gateway artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gateway
+          path: gateway/target/*.jar
 
   build-eureka-server:
     needs: detect-changes
