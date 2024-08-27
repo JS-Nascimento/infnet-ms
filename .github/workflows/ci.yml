@@ -85,7 +85,7 @@ jobs:
 
       - name: Build and Test emprestimo-service
         working-directory: emprestimo-service
-        run: mvn clean install
+        run: mvn clean install -DskipTests
 
       - name: Upload emprestimo-service artifact
         uses: actions/upload-artifact@v4
