@@ -13,7 +13,6 @@ import java.util.List;
 @RequestMapping("/emprestimos")
 public class EmprestimoController {
 
-
     private final EmprestimoService emprestimoService;
 
     @GetMapping
