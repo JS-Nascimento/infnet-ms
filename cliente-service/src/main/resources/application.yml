@@ -1,9 +1,10 @@
 spring:
   application:
     name: cliente-service
+
   datasource:
     url: jdbc:h2:mem:cliente;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driverClassName: org.h2.Driver
+    driver-class-name: org.h2.Driver
     username: sa
     password: password
 
@@ -26,19 +27,19 @@ server:
   port: 8081
 
 eureka:
-  instance:
-    appname: cliente-service
-
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
-    fetch-registry: true
+      defaultZone: http://eureka:8761/eureka/  # URL do servidor Eureka
     register-with-eureka: true
+    fetch-registry: true
+  instance:
+    app name: cliente-service
+    #    hostname: ${HOSTNAME}.${POD_NAMESPACE}.svc.cluster.local
+    prefer-ip-address: true
+    #    ip-address: ${POD_IP}
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 30
 
 logging:
   level:
     root: INFO
-  logstash:
-    host: localhost
-    port: 12201
-

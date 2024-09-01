@@ -4,42 +4,69 @@ server:
 spring:
   application:
     name: gateway-service
-
   cloud:
     gateway:
-      mvc:
-        routes:
-          - id: catalogo-service
-            uri: lb://catalogo-service
-            predicates:
-              - Path=/catalogo/**
-            filters:
-              - RewritePath=/catalogo/(?<segment>.*), /$\{segment}
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: catalogo-service
+          uri: lb://catalogo-service
+          predicates:
+            - Path=/catalogo/**
+          filters:
+            - RewritePath=/catalogo/(?<segment>.*), /$\{segment}
 
-          - id: emprestimo-service
-            uri: lb://emprestimo-service
-            predicates:
-              - Path=/emprestimo/**
-            filters:
-              - RewritePath=/emprestimo/(?<segment>.*), /$\{segment}
+        - id: emprestimo-service
+          uri: lb://emprestimo-service
+          predicates:
+            - Path=/emprestimo/**
+          filters:
+            - RewritePath=/emprestimo/(?<segment>.*), /$\{segment}
 
-          - id: cliente-service
-            uri: lb://cliente-service
-            predicates:
-              - Path=/cliente/**
-            filters:
-              - RewritePath=/cliente/(?<segment>.*), /$\{segment}
+        - id: cliente-service
+          uri: lb://cliente-service
+          predicates:
+            - Path=/cliente/**
+          filters:
+            - RewritePath=/cliente/(?<segment>.*), /$\{segment}
+
+    loadbalancer:
+      retry:
+        enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j:
+  timeLimiter:
+    configs:
+      default:
+        timeoutDuration: 1s
+    instances:
+      default:
+        timeoutDuration: 5s
+
 logging:
   level:
-    root: INFO
-  logstash:
-    host: localhost
-    port: 12201
-
+    root: DEBUG
 
 eureka:
   client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    fetch-registry: true
-    register-with-eureka: true
+    initial-instance-info-replication-interval-seconds: 30
+    registry-fetch-interval-seconds: 30
+    eureka-service-url-poll-interval-seconds: 30
+    instance-info-replication-interval-seconds: 30
+    serviceUrl:
+      defaultZone: http://eureka:8761/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 30

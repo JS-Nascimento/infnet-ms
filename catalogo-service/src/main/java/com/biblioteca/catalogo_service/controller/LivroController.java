@@ -19,7 +19,6 @@ public class LivroController {
     public List<Livro> getAllLivros() {
         return livroService.getAllLivros();
     }
-
     @PostMapping
     public Livro createLivro(@RequestBody Livro livro) {
         return livroService.createLivro(livro);

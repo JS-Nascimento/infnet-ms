@@ -1,43 +1,22 @@
-<configuration>
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <appender name="GRAYLOG" class="de.siegmar.logbackgelf.GelfTcpAppender">
-        <graylogHost>127.0.0.1</graylogHost>
-        <graylogPort>12201</graylogPort>
-        <encoder class="de.siegmar.logbackgelf.GelfEncoder">
-
-            <includeRawMessage>true</includeRawMessage>
-
-            <includeRootCauseData>true</includeRootCauseData>
-
-            <includeLevelName>true</includeLevelName>
-            <levelNameKey>level_name</levelNameKey>
-
-            <staticField>_environment:DEV</staticField>
-            <staticField>_application:CATALOGO-SERVICE</staticField>
-
-            <shortPatternLayout>
-                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%thread] [CATALOGO-SERVICE] %logger{36} -
-                    %msg%n
-                </pattern>
-
-            </shortPatternLayout>
-
-            <fullPatternLayout>
-                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%thread] [CATALOGO-SERVICE] %logger{36} -
-                    %msg%n
-                </pattern>
-
-            </fullPatternLayout>
-        </encoder>
-    </appender>
-
-    <root level="info">
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="GRAYLOG"/>
-    </root>
-</configuration>
+<appender name="GRAYLOG" class="de.siegmar.logbackgelf.GelfTcpAppender">
+    <graylogHost>${LOGGING_LOGSTASH_HOST}</graylogHost>
+    <graylogPort>${LOGGING_LOGSTASH_PORT}</graylogPort>
+    <encoder class="de.siegmar.logbackgelf.GelfEncoder">
+        <includeRawMessage>true</includeRawMessage>
+        <includeRootCauseData>true</includeRootCauseData>
+        <includeLevelName>true</includeLevelName>
+        <levelNameKey>level_name</levelNameKey>
+        <staticField>_environment:DEV</staticField>
+        <staticField>_application:CATALOGO-SERVICE</staticField>
+        <shortPatternLayout>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%thread] [CATALOGO-SERVICE] %logger{36} -
+                %msg%n
+            </pattern>
+        </shortPatternLayout>
+        <fullPatternLayout>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%thread] [CATALOGO-SERVICE] %logger{36} -
+                %msg%n
+            </pattern>
+        </fullPatternLayout>
+    </encoder>
+</appender>

@@ -23,7 +23,7 @@ spring:
       mode: always
 
   rabbitmq:
-    host: localhost
+    host: broker-rabbitmq
     port: 5672
     username: guest
     password: guest
@@ -32,19 +32,21 @@ server:
   port: 8082
 
 eureka:
-  instance:
-    appname: emprestimo-service
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
-    fetch-registry: true
+      defaultZone: http://eureka:8761/eureka/  # URL do servidor Eureka
     register-with-eureka: true
+    fetch-registry: true
+  instance:
+    app name: emprestimo-service
+    #    hostname: ${HOSTNAME}.${POD_NAMESPACE}.svc.cluster.local
+    prefer-ip-address: true
+    #    ip-address: ${POD_IP}
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 30
 
 
 logging:
   level:
     root: INFO
-  logstash:
-    host: localhost
-    port: 12201
 
