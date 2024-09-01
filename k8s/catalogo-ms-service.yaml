@@ -5,8 +5,12 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 8083
+    - name: http
+      port: 8083
       targetPort: 8083
+    - name: logstash
+      port: 12801
+      targetPort: 12801
   selector:
     app: catalogo-service
 ---
@@ -32,3 +36,4 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8083
+            - containerPort: 12801

@@ -1,19 +1,146 @@
-replicaCount: 1
+# Configurações existentes do RabbitMQ
+rabbitmq:
+  replicaCount: 1
 
-auth:
-  username: guest
-  password: guest
+  auth:
+    username: guest
+    password: guest
 
-service:
-  type: ClusterIP
+  service:
+    type: ClusterIP
+
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+# Configurações do Elasticsearch
+elasticsearch:
+  global:
+    imageRegistry: ""
+    imagePullSecrets: [ ]
+    storageClass: ""  # Especifique o storageClass caso necessário
+
+  replicas: 1
+  minimumMasterNodes: 1  # Mantém como 1 para operação com um único nó
+  clusterName: "elasticsearch"
+  nodeGroup: "master"
+
+  esConfig:
+    elasticsearch.yml: |
+      xpack.security.enabled: false
+      cluster.name: "elasticsearch"
+      node.name: "elasticsearch-master-0"
+      discovery.type: "single-node" 
+
+  secret:
+    password: "my_password"
+
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: 500m
+    limits:
+      memory: 2Gi
+      cpu: 1000m
+  antiAffinity:
+    enabled: false
+
+  extraEnvs:
+    - name: discovery.type
+      value: "single-node"
+
+# Configurações do Logstash
+logstash:
+  enabled: true
+  logstashConfig:
+    logstash.yml: |
+      http.host: "0.0.0.0"
+      xpack.monitoring.elasticsearch.username: "elastic"
+      xpack.monitoring.elasticsearch.password: "my_password"
+
+  logstashPipeline:
+    input {
+    tcp {
+    port => 12801
+    codec => json_lines
+    }
+    }
+
+    filter {
+    if [message] =~ /\[CATALOGO-SERVICE\]/ {
+    mutate {
+    add_field => { "service" => "catalogo-service" }
+    }
+    } else if [message] =~ /\[CLIENTE-SERVICE\]/ {
+    mutate {
+    add_field => { "service" => "cliente-service" }
+    }
+    } else if [message] =~ /\[EMPRESTIMO-SERVICE\]/ {
+    mutate {
+    add_field => { "service" => "emprestimo-service" }
+    }
+    }
+    }
+
+    output {
+    elasticsearch {
+    hosts => ["http://elasticsearch:9200"]
+    index => "%{[service]}-%{+YYYY.MM.dd}"
+    }
+    stdout { codec => rubydebug }
+    }
+
 
 resources:
   requests:
-    memory: 256Mi
+    memory: 512Mi
     cpu: 250m
   limits:
-    memory: 512Mi
+    memory: 1Gi
     cpu: 500m
+
+# Configurações do Kibana
+kibana:
+  elasticsearch:
+    hosts: [ "elasticsearch" ]
+    port: 9200
+    username: "elastic"
+    password: "my_password"
+  kibanaConfig:
+    kibana.yml: |
+      pid.file: /opt/bitnami/kibana/tmp/kibana.pid
+      server.host: "::"
+      server.port: 5601
+      elasticsearch.hosts[0]: ["elasticsearch"]
+      elasticsearch.port: 9200
+      server.rewriteBasePath: false
+  extraInitContainers:
+    - name: kibana-setup
+      image: busybox
+      command: [ "/bin/sh", "-c" ]
+      args:
+        - >
+          while ! curl -s http://kibana:5601/api/status; do sleep 5; done;
+          curl -X POST "http://kibana:5601/api/saved_objects/index-pattern" -H 'kbn-xsrf: true' -H 'Content-Type: application/json' -d'
+          {
+            "attributes": {
+              "title": "*-service-*",
+              "timeFieldName": "@timestamp"
+            }
+          }';
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "1000m"
+      memory: "2Gi"
+
 
 
 

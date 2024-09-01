@@ -4,8 +4,7 @@ WORKDIR /app
 
 COPY target/catalogo-service-0.0.1-SNAPSHOT.jar catalogo-service.jar
 
-# Expondo a porta configurada no application.yml
-EXPOSE 8083
+EXPOSE 8083 12801
 
 ENV SERVER_PORT=8083
 
